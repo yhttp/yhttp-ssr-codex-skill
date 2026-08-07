@@ -1,0 +1,4 @@
+interface:
+  display_name: "YHTTP SSR"
+  short_description: "Build robust localized YHTTP SSR applications"
+  default_prompt: "Use $yhttp-ssr to implement a localized server-rendered feature in this YHTTP project."
