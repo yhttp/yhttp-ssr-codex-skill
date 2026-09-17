@@ -9,7 +9,7 @@ Implement SSR work through the target project's existing YHTTP composition, Mako
 
 ## Establish the project contract
 
-1. Read repository instructions and the canonical setup, architecture, dependency, and command files.
+1. Read repository instructions and the canonical setup, architecture, dependency, and command files, including `Makefile` when present.
 2. Inspect the installed YHTTP version and extension pins. Read the matching current official YHTTP documentation and repositories for extensions involved in the task; prefer verified APIs over memory.
 3. Trace the composition root, settings merge, readiness callback, model imports, route-registration imports, relevant handler, inherited template, browser entry point, and tests.
 4. Find the nearest complete feature and follow it end to end.
@@ -17,6 +17,13 @@ Implement SSR work through the target project's existing YHTTP composition, Mako
 6. Present a short plan covering rendering, routing, localization, browser behavior, data/auth boundaries, and tests.
 
 Read [references/xta-patterns.md](references/xta-patterns.md) when working in XTA or when a concrete production-style example is useful.
+
+### Makefile contract
+
+- Treat the repository `Makefile` as the canonical developer command contract; read its variables, included makelib rules, virtual-environment prefix, and feature-specific targets before running commands or adding new ones.
+- Reuse existing targets instead of duplicating their commands in documentation or one-off shell scripts. Add a target only when the workflow is a repeatable project concern and keep its naming consistent with neighboring targets.
+- A new YHTTP SSR project should provide, or clearly inherit, targets for formatting, linting, tests, running the development server, and localization compilation when localization is installed. Keep target commands aligned with the project's selected virtual environment and package manager.
+- When reporting verification, name the Makefile targets run. If a target cannot run because an environment prerequisite is absent, run the narrow underlying check when safe and report the missing prerequisite explicitly.
 
 ## Classify the change
 
@@ -64,9 +71,65 @@ Read [references/xta-patterns.md](references/xta-patterns.md) when working in XT
 ### Browser enhancement and assets
 
 - Keep the SSR page useful before JavaScript where practical.
-- Put Alpine state in the established view directory and network calls in resource services.
-- Resolve Vite-managed assets through the project's asset helper; do not hard-code development or fingerprinted production paths.
-- Check both development asset URLs and production manifest behavior when changing the asset boundary.
+- Treat `www/` as the browser source tree: shared bootstrap and styles live in
+  `www/master.js` and `www/master.css`, page-specific Alpine controllers live
+  in `www/views/`, API clients live in `www/services/`, and source images live
+  in `www/images/`.
+- Keep Alpine state in the established view directory and network calls in
+  resource services. Register shared behavior in `www/master.js`; page
+  controllers should be imported as page-specific Vite entries and registered
+  with `Alpine.data(...)`.
+- Use Alpine as progressive enhancement, not a client-side application shell.
+  Mako must render the usable HTML and initial values first; Alpine then
+  hydrates elements marked with `x-data` after the shared bootstrap calls
+  `Alpine.start()`.
+- Pass initial state from Mako as safely serialized data to `x-data` (or an
+  equivalent data attribute), and make the controller tolerate missing or
+  empty values. Do not duplicate server truth by fetching initial state again
+  on hydration.
+- Keep hydration side effects small and explicit: use Alpine lifecycle hooks
+  or event bindings for browser-only setup, and preserve the server-rendered
+  fallback while assets are loading. Use `x-cloak` for elements that must stay
+  hidden until Alpine initializes.
+- Resolve Vite-managed assets through the project's asset helper; do not
+  hard-code development-server or fingerprinted production paths. Check both
+  development URLs and production-manifest resolution when changing the asset
+  boundary.
+
+### Client toolchain and source files
+
+- Read `package.json` before changing browser code. It is the source of truth
+  for the Node engine, pnpm package manager, client dependencies, and scripts
+  such as `dev`, `build`, `lint`, and `format`. Add a dependency only when the
+  existing browser stack cannot support the feature; update
+  `pnpm-lock.yaml` with pnpm rather than editing the lockfile by hand.
+- Treat `vite.config.mjs` as the asset-boundary contract. Preserve its dev
+  server settings, Tailwind Vite plugin, manifest output, `.var/static` build
+  directory, CSS splitting, module-preload policy, and explicit/globbed input
+  entries. A new `www/views/*.js`, `www/views/*.css`, or source image must be
+  included by the configured inputs before a template references it.
+- Keep `www/master.js` as the shared browser bootstrap and `www/master.css` as
+  the shared Tailwind/CSS entry. The stylesheet may include Tailwind source
+  directives, template scan paths, custom fonts, and global Alpine helpers such
+  as `[x-cloak]`; do not move page-specific rules into the shared file without
+  a cross-page need.
+- Use `.prettierrc` as the formatting contract. Preserve its quote, width,
+  indentation, XML, and Tailwind-class-sorting settings. Run the repository's
+  `www-format` target after frontend edits and inspect formatter changes for
+  unrelated rewrites.
+- Use `eslint.config.mjs` as the lint contract. It defines JavaScript module
+  rules, browser globals, JSON rules, Prettier integration, and generated
+  `.var/**` ignores. Fix lint/configuration issues in the appropriate source
+  file instead of suppressing them broadly.
+- Keep `www/services/` limited to endpoint clients and shared request/error
+  handling; keep `www/views/` limited to Alpine controllers and browser state;
+  keep Mako responsible for SSR markup and initial state. Do not put raw fetch
+  flows in templates or duplicate service logic in each view.
+- Use the Makefile's `www-env`, `www-format`, `www-lint`, and `www-dist`
+  targets rather than ad-hoc package-manager commands when those workflows are
+  required. `www-dist` must produce the manifest and assets expected by the
+  server-side asset resolver, and generated `.var/` output must not be treated
+  as source.
 
 ### Persistence and authorization
 
@@ -85,7 +148,7 @@ Read [references/xta-patterns.md](references/xta-patterns.md) when working in XT
 
 ## Verify and report
 
-1. Run the repository's required formatter, localization compiler when applicable, lint, focused tests, and full coverage suite.
+1. Read and use the repository's Makefile targets for the required formatter, localization compiler when applicable, lint, focused tests, and full coverage suite.
 2. Run database rebuild or migration checks only when required and only against a confirmed disposable database.
 3. Inspect the final diff and status; remove formatter noise and retain user-owned changes.
 4. Report the behavior delivered, checks run, and any remaining browser, deployment, or migration uncertainty.
