@@ -14,8 +14,6 @@ The skill guides Codex through an existing project's composition, routing, Mako 
 - bddrest and project-native page tests
 - Safe worktree inspection, verification, and change reporting
 
-The bundled XTA reference also provides concrete patterns for production-style multilingual YHTTP applications.
-
 ## Install
 
 Ask Codex to install the skill from this repository:
@@ -57,13 +55,12 @@ Codex can also select the skill automatically when a request matches its scope.
 .
 ├── SKILL.md                    # Core workflow and implementation guidance
 ├── agents/openai.yaml          # Skill display metadata and default prompt
-├── references/xta-patterns.md  # Concrete XTA architecture and SSR patterns
 └── LICENSE
 ```
 
 ## Scope
 
-This skill is intended for work in an existing YHTTP codebase. It does not install YHTTP, replace project-specific instructions, or prescribe a new application architecture. Codex first inspects the target repository, verifies the installed framework and extension APIs, and follows the nearest complete feature before making changes.
+This self-contained skill is intended for work in an existing YHTTP codebase. It has no application-project or auxiliary-reference dependency: Codex first inspects the target repository, verifies the installed framework and extension APIs, and follows the nearest complete feature before making changes. It does not install YHTTP, replace project-specific instructions, or prescribe a new application architecture.
 
 ## License
 
