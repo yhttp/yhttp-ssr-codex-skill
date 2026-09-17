@@ -22,11 +22,35 @@ Ask Codex to install the skill from this repository:
 $skill-installer install https://github.com/yhttp/yhttp-ssr-codex-skill
 ```
 
+Or use the included Makefile. `make install` copies the skill files into the
+Codex skills directory. `make uninstall` removes that installed copy only; it
+does not remove this source checkout.
+
+The default destination is `$CODEX_HOME/skills` when `CODEX_HOME` is set,
+otherwise `~/.codex/skills`:
+
+```console
+make install
+```
+
+To remove it later:
+
+```console
+make uninstall
+```
+
+Override the destination when using a different skills directory:
+
+```console
+make install SKILLS_DIR=/path/to/skills
+make uninstall SKILLS_DIR=/path/to/skills
+```
+
 Alternatively, clone it into your user skills directory:
 
 ```console
-mkdir -p ~/.agents/skills
-git clone https://github.com/yhttp/yhttp-ssr-codex-skill.git ~/.agents/skills/yhttp-ssr
+mkdir -p ~/.codex/skills
+git clone https://github.com/yhttp/yhttp-ssr-codex-skill.git ~/.codex/skills/yhttp-ssr
 ```
 
 Codex usually detects new skills automatically. Restart Codex if the skill does not appear in `/skills`.
