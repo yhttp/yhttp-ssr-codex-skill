@@ -86,6 +86,10 @@ Codex can also select the skill automatically when a request matches its scope.
 
 This self-contained skill is intended for work in an existing YHTTP codebase. It has no application-project or auxiliary-reference dependency: Codex first inspects the target repository, verifies the installed framework and extension APIs, and follows the nearest complete feature before making changes. It does not install YHTTP, replace project-specific instructions, or prescribe a new application architecture.
 
+Every commit made while using this skill must pass the target project's full
+coverage suite at exactly 100%. Do not use exclusions, pragmas, lowered
+thresholds, or weakened assertions to obtain that result.
+
 ## License
 
 Released under the [MIT License](LICENSE).

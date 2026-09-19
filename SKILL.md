@@ -307,3 +307,14 @@ the repository confirms it.
 2. Run database rebuild or migration checks only when required and only against a confirmed disposable database.
 3. Inspect the final diff and status; remove formatter noise and retain user-owned changes.
 4. Report the behavior delivered, checks run, and any remaining browser, deployment, or migration uncertainty.
+
+## Commit gate
+
+- Before every commit, run the project's complete coverage command and require
+  the reported total coverage to be exactly 100%. A missing, failed, partial,
+  or unavailable coverage run does not satisfy this gate.
+- Add behavioral tests for uncovered lines and branches. Never lower a coverage
+  threshold, omit source files, add coverage pragmas, or weaken assertions just
+  to reach 100%.
+- Include the coverage command and its 100% result in the commit handoff. Do
+  not create the commit until the full suite and coverage gate pass.
