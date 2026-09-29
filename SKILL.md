@@ -57,7 +57,12 @@ the repository confirms it.
 ### Routes and handlers
 
 - Register regex paths with `@app.route(...)`; accept capture groups in the handler signature.
-- Name handlers for the YHTTP verb used by the project, such as `get`, `create`, `update`, `delete`, or `refresh`.
+- Map each handler function name to its YHTTP verb: a `GET` route must use
+  `def get(...)`, `CREATE` must use `def create(...)`, `UPDATE` must use
+  `def update(...)`, `DELETE` must use `def delete(...)`, and `REFRESH` must
+  use `def refresh(...)`. Do not replace these names with descriptive names
+  such as `list_page`; the verb-aligned function name is part of the YHTTP
+  route contract.
 - Apply body and query guards before handler logic. Choose strictness explicitly and update tests with accepted inputs.
 - Render pages with `@app.template(...)` and return context dictionaries.
 - Use the project's status and JSON decorators for non-page responses; never expose internal exceptions.
